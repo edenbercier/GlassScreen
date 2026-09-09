@@ -6,6 +6,7 @@ using GlassScreen.Models;
 using GlassScreen.Native;
 using GlassScreen.Picker;
 using GlassScreen.Services;
+using System.Linq;
 
 namespace GlassScreen;
 
@@ -99,7 +100,13 @@ public partial class MainWindow : Window
             case HotKeyService.RestoreId:
                 RestoreActiveWindow();
                 break;
+            case HotKeyService.RestoreAllId:
+                RestoreAllWindows();
+                break;
 
+            case HotKeyService.CycleActiveWindowId:
+                CycleActiveWindow();
+                break;
             case HotKeyService.ShowGlassScreenId:
                 ShowGlassScreen();
                 break;
@@ -114,6 +121,8 @@ public partial class MainWindow : Window
         object sender,
         RoutedEventArgs e)
     {
+        RemoveClosedWindows();
+        
         StatusText.Text =
             "Click the window you want to add...";
 
@@ -363,25 +372,13 @@ public partial class MainWindow : Window
         object sender,
         RoutedEventArgs e)
     {
-        _stateService.RestoreAll();
-
-        _updatingCardControls = true;
-
-        foreach (WindowControlState state in _selectedWindows)
-        {
-            state.Opacity = 100;
-            state.ClickThrough = false;
-            state.AlwaysOnTop = false;
-        }
-
-        _updatingCardControls = false;
-
-        StatusText.Text =
-            "All modified windows restored.";
+        RestoreAllWindows();
     }
 
     private WindowControlState? GetActiveWindow()
     {
+        RemoveClosedWindows();
+        
         if (SelectedWindowsList.SelectedItem
             is WindowControlState selected)
         {
@@ -529,7 +526,95 @@ public partial class MainWindow : Window
                 ? $"{state.Window.Title} restored."
                 : $"{state.Window.Title} has not been modified.";
     }
+    private void RestoreAllWindows()
+    {
+        if (_selectedWindows.Count == 0)
+        {
+            StatusText.Text =
+                "No windows selected.";
 
+            return;
+        }
+
+        _stateService.RestoreAll();
+
+        _updatingCardControls = true;
+
+        foreach (WindowControlState state in _selectedWindows)
+        {
+            state.Opacity = 100;
+            state.ClickThrough = false;
+            state.AlwaysOnTop = false;
+        }
+
+        _updatingCardControls = false;
+
+        StatusText.Text =
+            "All windows restored.";
+    }
+    private void CycleActiveWindow()
+    {
+        if (_selectedWindows.Count == 0)
+        {
+            StatusText.Text =
+                "No windows selected.";
+
+            return;
+        }
+
+        int currentIndex =
+            SelectedWindowsList.SelectedIndex;
+
+        int nextIndex;
+
+        if (currentIndex < 0)
+        {
+            nextIndex = 0;
+        }
+        else
+        {
+            nextIndex =
+                (currentIndex + 1) %
+                _selectedWindows.Count;
+        }
+
+        SelectedWindowsList.SelectedIndex =
+            nextIndex;
+
+        WindowControlState active =
+            _selectedWindows[nextIndex];
+
+        SelectedWindowsList.ScrollIntoView(
+            active
+        );
+
+        StatusText.Text =
+            $"Active: {active.Window.Title}";
+    }
+    private void RemoveClosedWindows()
+    {
+        List<WindowControlState> closedWindows =
+            _selectedWindows
+                .Where(state =>
+                    !NativeMethods.IsWindow(
+                        state.Window.Handle
+                    ))
+                .ToList();
+
+        foreach (WindowControlState state in closedWindows)
+        {
+            _selectedWindows.Remove(state);
+        }
+
+        UpdateEmptyState();
+
+        if (_selectedWindows.Count > 0 &&
+            SelectedWindowsList.SelectedItem == null)
+        {
+            SelectedWindowsList.SelectedItem =
+                _selectedWindows[0];
+        }
+    }
     private void ShowGlassScreen()
     {
         Show();

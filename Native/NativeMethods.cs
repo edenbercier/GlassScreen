@@ -9,6 +9,9 @@ public static class NativeMethods
         IntPtr hWnd,
         IntPtr lParam
     );
+    [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static extern bool IsWindow(IntPtr hWnd);
     [DllImport("user32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
     public static extern bool RegisterHotKey(
@@ -29,14 +32,17 @@ public static class NativeMethods
 
     public const uint MOD_ALT = 0x0001;
     public const uint MOD_CONTROL = 0x0002;
+    public const uint MOD_SHIFT = 0x0004;
 
     public const uint VK_T = 0x54;
     public const uint VK_R = 0x52;
     public const uint VK_G = 0x47;
     public const uint VK_A = 0x41;
+    public const uint VK_N = 0x4E;
     
     public const uint VK_UP = 0x26;
     public const uint VK_DOWN = 0x28;
+
    
     
     [DllImport("user32.dll")]

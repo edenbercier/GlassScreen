@@ -11,6 +11,8 @@ public class HotKeyService
     public const int RestoreId = 4;
     public const int ShowGlassScreenId = 5;
     public const int ToggleAlwaysOnTopId = 6;
+    public const int RestoreAllId = 7;
+    public const int CycleActiveWindowId = 8;
 
     private IntPtr _windowHandle;
 
@@ -58,6 +60,21 @@ public class HotKeyService
             NativeMethods.MOD_CONTROL | NativeMethods.MOD_ALT,
             NativeMethods.VK_A
         );
+        NativeMethods.RegisterHotKey(
+            windowHandle,
+            RestoreAllId,
+            NativeMethods.MOD_CONTROL |
+            NativeMethods.MOD_ALT |
+            NativeMethods.MOD_SHIFT,
+            NativeMethods.VK_R
+        );
+        NativeMethods.RegisterHotKey(
+            windowHandle,
+            CycleActiveWindowId,
+            NativeMethods.MOD_CONTROL |
+            NativeMethods.MOD_ALT,
+            NativeMethods.VK_N
+        );
     }
 
     public void Unregister()
@@ -94,6 +111,15 @@ public class HotKeyService
         NativeMethods.UnregisterHotKey(
             _windowHandle,
             ToggleAlwaysOnTopId
+        );
+        NativeMethods.UnregisterHotKey(
+            _windowHandle,
+            RestoreAllId
+        );
+
+        NativeMethods.UnregisterHotKey(
+            _windowHandle,
+            CycleActiveWindowId
         );
     }
 }
