@@ -1,10 +1,11 @@
-﻿using System.Windows;
+﻿using System.Collections.ObjectModel;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Interop;
 using GlassScreen.Models;
+using GlassScreen.Native;
 using GlassScreen.Picker;
 using GlassScreen.Services;
-using System.Windows.Interop;
-using GlassScreen.Native;
-using System.Windows.Controls;
 
 namespace GlassScreen;
 
@@ -14,12 +15,11 @@ public partial class MainWindow : Window
     private readonly WindowEffectsService _effectsService;
     private readonly WindowPicker _windowPicker;
     private readonly HotKeyService _hotKeyService;
-    
-    private readonly List<WindowInfo> _selectedWindows =
-        new();
-    private bool _updatingControls;
-    private bool _clickThroughEnabled;
-    private bool _alwaysOnTopEnabled;
+
+    private readonly ObservableCollection<WindowControlState>
+        _selectedWindows = new();
+
+    private bool _updatingCardControls;
 
     public MainWindow()
     {
@@ -27,15 +27,24 @@ public partial class MainWindow : Window
 
         _stateService =
             new WindowStateService();
+
         _effectsService =
             new WindowEffectsService(
                 _stateService
             );
+
         _windowPicker =
             new WindowPicker();
+
         _hotKeyService =
             new HotKeyService();
+
+        SelectedWindowsList.ItemsSource =
+            _selectedWindows;
+
+        UpdateEmptyState();
     }
+
     protected override void OnSourceInitialized(
         EventArgs e)
     {
@@ -53,6 +62,7 @@ public partial class MainWindow : Window
 
         _hotKeyService.Register(handle);
     }
+
     private IntPtr WindowMessageHook(
         IntPtr hwnd,
         int msg,
@@ -73,9 +83,11 @@ public partial class MainWindow : Window
             case HotKeyService.ToggleClickThroughId:
                 ToggleClickThrough();
                 break;
+
             case HotKeyService.ToggleAlwaysOnTopId:
                 ToggleAlwaysOnTop();
                 break;
+
             case HotKeyService.OpacityUpId:
                 ChangeOpacity(5);
                 break;
@@ -85,7 +97,7 @@ public partial class MainWindow : Window
                 break;
 
             case HotKeyService.RestoreId:
-                RestoreSelectedWindow();
+                RestoreActiveWindow();
                 break;
 
             case HotKeyService.ShowGlassScreenId:
@@ -105,12 +117,14 @@ public partial class MainWindow : Window
         StatusText.Text =
             "Click the window you want to add...";
 
-        PickWindowButton.IsEnabled = false;
+        PickWindowButton.IsEnabled =
+            false;
 
         WindowInfo? pickedWindow =
             await _windowPicker.PickWindowAsync();
 
-        PickWindowButton.IsEnabled = true;
+        PickWindowButton.IsEnabled =
+            true;
 
         if (pickedWindow == null)
         {
@@ -122,8 +136,9 @@ public partial class MainWindow : Window
 
         bool alreadySelected =
             _selectedWindows.Any(
-                window =>
-                    window.Handle == pickedWindow.Handle
+                state =>
+                    state.Window.Handle ==
+                    pickedWindow.Handle
             );
 
         if (alreadySelected)
@@ -134,154 +149,175 @@ public partial class MainWindow : Window
             return;
         }
 
+        var state =
+            new WindowControlState(
+                pickedWindow
+            );
+
         _selectedWindows.Add(
-            pickedWindow
+            state
         );
 
-        RefreshSelectedWindows();
+        SelectedWindowsList.SelectedItem =
+            state;
+
+        UpdateEmptyState();
 
         StatusText.Text =
             $"{_selectedWindows.Count} window(s) selected.";
     }
-    private void OpacitySlider_ValueChanged(
+
+    private void WindowCard_Loaded(
+        object sender,
+        RoutedEventArgs e)
+    {
+        if (sender is not FrameworkElement element)
+        {
+            return;
+        }
+
+        if (element.DataContext is not WindowControlState state)
+        {
+            return;
+        }
+
+        state.IsUiReady = true;
+    }
+
+    private void WindowOpacitySlider_ValueChanged(
         object sender,
         RoutedPropertyChangedEventArgs<double> e)
     {
-        if (_updatingControls)
+        if (_updatingCardControls)
         {
             return;
         }
+
+        if (sender is not Slider slider)
+        {
+            return;
+        }
+
+        if (slider.DataContext is not WindowControlState state)
+        {
+            return;
+        }
+
+        if (!state.IsUiReady)
+        {
+            return;
+        }
+
+        SelectedWindowsList.SelectedItem =
+            state;
 
         int opacity =
-            (int)OpacitySlider.Value;
-
-        if (OpacityLabel != null)
-        {
-            OpacityLabel.Text =
-                $"Opacity: {opacity}%";
-        }
-
-        if (_selectedWindows.Count == 0)
-        {
-            return;
-        }
-
-        foreach (WindowInfo window in _selectedWindows)
-        {
-            _effectsService.SetOpacity(
-                window.Handle,
-                opacity
+            Math.Clamp(
+                (int)Math.Round(slider.Value),
+                10,
+                100
             );
-        }
-    }
 
-    private void ClickThroughCheckBox_Changed(
-        object sender,
-        RoutedEventArgs e)
-    {
-        if (_updatingControls ||
-            _selectedWindows.Count == 0)
-        {
-            return;
-        }
+        state.Opacity =
+            opacity;
 
-        _clickThroughEnabled =
-            ClickThroughCheckBox.IsChecked == true;
-
-        foreach (WindowInfo window in _selectedWindows)
-        {
-            _effectsService.SetClickThrough(
-                window.Handle,
-                _clickThroughEnabled
-            );
-        }
-    }
-    private void AlwaysOnTopCheckBox_Changed(
-        object sender,
-        RoutedEventArgs e)
-    {
-        if (_updatingControls ||
-            _selectedWindows.Count == 0)
-        {
-            return;
-        }
-
-        _alwaysOnTopEnabled =
-            AlwaysOnTopCheckBox.IsChecked == true;
-
-        foreach (WindowInfo window in _selectedWindows)
-        {
-            _effectsService.SetAlwaysOnTop(
-                window.Handle,
-                _alwaysOnTopEnabled
-            );
-        }
-    }
-    private void RestoreButton_Click(
-        object sender,
-        RoutedEventArgs e)
-    {
-        if (_selectedWindows.Count == 0)
-        {
-            StatusText.Text =
-                "No windows selected.";
-
-            return;
-        }
-
-        foreach (WindowInfo window in _selectedWindows)
-        {
-            _stateService.Restore(
-                window.Handle
-            );
-        }
-
-        ResetControlsForNewSelection();
+        _effectsService.SetOpacity(
+            state.Window.Handle,
+            opacity
+        );
 
         StatusText.Text =
-            "Selected windows restored.";
+            $"{state.Window.Title}: {opacity}% opacity";
     }
-    private void RestoreAllButton_Click(
+
+    private void WindowClickThroughCheckBox_Changed(
         object sender,
         RoutedEventArgs e)
     {
-        _stateService.RestoreAll();
-
-        ResetControlsForNewSelection();
-
-        StatusText.Text =
-            "All modified windows restored.";
-    }
-    private void ToggleClickThrough()
-    {
-        if (_selectedWindows.Count == 0)
+        if (_updatingCardControls)
         {
             return;
         }
 
-        _clickThroughEnabled =
-            !_clickThroughEnabled;
-
-        foreach (WindowInfo window in _selectedWindows)
+        if (sender is not CheckBox checkBox)
         {
-            _effectsService.SetClickThrough(
-                window.Handle,
-                _clickThroughEnabled
-            );
+            return;
         }
 
-        _updatingControls = true;
+        if (checkBox.DataContext is not WindowControlState state)
+        {
+            return;
+        }
 
-        ClickThroughCheckBox.IsChecked =
-            _clickThroughEnabled;
+        if (!state.IsUiReady)
+        {
+            return;
+        }
 
-        _updatingControls = false;
+        SelectedWindowsList.SelectedItem =
+            state;
+
+        bool enabled =
+            checkBox.IsChecked == true;
+
+        state.ClickThrough =
+            enabled;
+
+        _effectsService.SetClickThrough(
+            state.Window.Handle,
+            enabled
+        );
 
         StatusText.Text =
-            _clickThroughEnabled
-                ? "Click-through enabled."
-                : "Click-through disabled.";
+            enabled
+                ? $"{state.Window.Title}: click-through enabled"
+                : $"{state.Window.Title}: click-through disabled";
     }
+
+    private void WindowAlwaysOnTopCheckBox_Changed(
+        object sender,
+        RoutedEventArgs e)
+    {
+        if (_updatingCardControls)
+        {
+            return;
+        }
+
+        if (sender is not CheckBox checkBox)
+        {
+            return;
+        }
+
+        if (checkBox.DataContext is not WindowControlState state)
+        {
+            return;
+        }
+
+        if (!state.IsUiReady)
+        {
+            return;
+        }
+
+        SelectedWindowsList.SelectedItem =
+            state;
+
+        bool enabled =
+            checkBox.IsChecked == true;
+
+        state.AlwaysOnTop =
+            enabled;
+
+        _effectsService.SetAlwaysOnTop(
+            state.Window.Handle,
+            enabled
+        );
+
+        StatusText.Text =
+            enabled
+                ? $"{state.Window.Title}: always-on-top enabled"
+                : $"{state.Window.Title}: always-on-top disabled";
+    }
+
     private void RemoveWindowButton_Click(
         object sender,
         RoutedEventArgs e)
@@ -291,121 +327,216 @@ public partial class MainWindow : Window
             return;
         }
 
-        if (button.Tag is not WindowInfo window)
+        if (button.Tag is not WindowControlState state)
         {
             return;
         }
 
         _stateService.Restore(
-            window.Handle
+            state.Window.Handle
         );
 
         _selectedWindows.Remove(
-            window
+            state
         );
 
-        RefreshSelectedWindows();
-        
+        if (_selectedWindows.Count > 0)
+        {
+            SelectedWindowsList.SelectedItem =
+                _selectedWindows[0];
+        }
+
+        UpdateEmptyState();
+
+        StatusText.Text =
+            $"Removed: {state.Window.Title}";
+    }
+
+    private void RestoreButton_Click(
+        object sender,
+        RoutedEventArgs e)
+    {
+        RestoreActiveWindow();
+    }
+
+    private void RestoreAllButton_Click(
+        object sender,
+        RoutedEventArgs e)
+    {
+        _stateService.RestoreAll();
+
+        _updatingCardControls = true;
+
+        foreach (WindowControlState state in _selectedWindows)
+        {
+            state.Opacity = 100;
+            state.ClickThrough = false;
+            state.AlwaysOnTop = false;
+        }
+
+        _updatingCardControls = false;
+
+        StatusText.Text =
+            "All modified windows restored.";
+    }
+
+    private WindowControlState? GetActiveWindow()
+    {
+        if (SelectedWindowsList.SelectedItem
+            is WindowControlState selected)
+        {
+            return selected;
+        }
+
         if (_selectedWindows.Count == 0)
         {
-            ResetControlsForNewSelection();
+            return null;
         }
-        StatusText.Text =
-            $"Removed: {window.Title}";
+
+        WindowControlState first =
+            _selectedWindows[0];
+
+        SelectedWindowsList.SelectedItem =
+            first;
+
+        return first;
     }
-    private void ToggleAlwaysOnTop()
+
+    private void ToggleClickThrough()
     {
-        if (_selectedWindows.Count == 0)
+        WindowControlState? state =
+            GetActiveWindow();
+
+        if (state == null)
         {
             return;
         }
 
-        _alwaysOnTopEnabled =
-            !_alwaysOnTopEnabled;
+        bool enabled =
+            !state.ClickThrough;
 
-        foreach (WindowInfo window in _selectedWindows)
-        {
-            _effectsService.SetAlwaysOnTop(
-                window.Handle,
-                _alwaysOnTopEnabled
-            );
-        }
+        _updatingCardControls = true;
 
-        _updatingControls = true;
+        state.ClickThrough =
+            enabled;
 
-        AlwaysOnTopCheckBox.IsChecked =
-            _alwaysOnTopEnabled;
+        _updatingCardControls = false;
 
-        _updatingControls = false;
+        _effectsService.SetClickThrough(
+            state.Window.Handle,
+            enabled
+        );
 
         StatusText.Text =
-            _alwaysOnTopEnabled
-                ? "Always-on-top enabled."
-                : "Always-on-top disabled.";
+            enabled
+                ? $"{state.Window.Title}: click-through enabled"
+                : $"{state.Window.Title}: click-through disabled";
     }
-    private void ChangeOpacity(int amount)
+
+    private void ToggleAlwaysOnTop()
     {
-        if (_selectedWindows.Count == 0)
+        WindowControlState? state =
+            GetActiveWindow();
+
+        if (state == null)
+        {
+            return;
+        }
+
+        bool enabled =
+            !state.AlwaysOnTop;
+
+        _updatingCardControls = true;
+
+        state.AlwaysOnTop =
+            enabled;
+
+        _updatingCardControls = false;
+
+        _effectsService.SetAlwaysOnTop(
+            state.Window.Handle,
+            enabled
+        );
+
+        StatusText.Text =
+            enabled
+                ? $"{state.Window.Title}: always-on-top enabled"
+                : $"{state.Window.Title}: always-on-top disabled";
+    }
+
+    private void ChangeOpacity(
+        int amount)
+    {
+        WindowControlState? state =
+            GetActiveWindow();
+
+        if (state == null)
         {
             return;
         }
 
         int newOpacity =
             Math.Clamp(
-                (int)OpacitySlider.Value + amount,
+                state.Opacity + amount,
                 10,
                 100
             );
 
-        _updatingControls = true;
+        _updatingCardControls = true;
 
-        OpacitySlider.Value =
+        state.Opacity =
             newOpacity;
 
-        OpacityLabel.Text =
-            $"Opacity: {newOpacity}%";
+        _updatingCardControls = false;
 
-        _updatingControls = false;
-
-        foreach (WindowInfo window in _selectedWindows)
-        {
-            _effectsService.SetOpacity(
-                window.Handle,
-                newOpacity
-            );
-        }
+        _effectsService.SetOpacity(
+            state.Window.Handle,
+            newOpacity
+        );
 
         StatusText.Text =
-            $"Opacity: {newOpacity}%";
+            $"{state.Window.Title}: {newOpacity}% opacity";
     }
-    private void RestoreSelectedWindow()
+
+    private void RestoreActiveWindow()
     {
-        if (_selectedWindows.Count == 0)
+        WindowControlState? state =
+            GetActiveWindow();
+
+        if (state == null)
         {
+            StatusText.Text =
+                "No active window.";
+
             return;
         }
 
-        foreach (WindowInfo window in _selectedWindows)
-        {
+        bool restored =
             _stateService.Restore(
-                window.Handle
+                state.Window.Handle
             );
-        }
 
-        _clickThroughEnabled = false;
-        _alwaysOnTopEnabled = false;
+        _updatingCardControls = true;
 
-        ResetControlsForNewSelection();
+        state.Opacity = 100;
+        state.ClickThrough = false;
+        state.AlwaysOnTop = false;
+
+        _updatingCardControls = false;
 
         StatusText.Text =
-            "Selected windows restored.";
+            restored
+                ? $"{state.Window.Title} restored."
+                : $"{state.Window.Title} has not been modified.";
     }
+
     private void ShowGlassScreen()
     {
         Show();
 
         WindowState =
             System.Windows.WindowState.Normal;
+
         Activate();
 
         Topmost = true;
@@ -413,33 +544,15 @@ public partial class MainWindow : Window
 
         Focus();
     }
-    private void RefreshSelectedWindows()
+
+    private void UpdateEmptyState()
     {
-        SelectedWindowsList.ItemsSource = null;
-
-        SelectedWindowsList.ItemsSource =
-            _selectedWindows;
-
         NoWindowsText.Visibility =
             _selectedWindows.Count == 0
                 ? Visibility.Visible
                 : Visibility.Collapsed;
     }
-    private void ResetControlsForNewSelection()
-    {
-        _updatingControls = true;
 
-        OpacitySlider.Value = 100;
-        OpacityLabel.Text = "Opacity: 100%";
-
-        ClickThroughCheckBox.IsChecked = false;
-        AlwaysOnTopCheckBox.IsChecked = false;
-
-        _clickThroughEnabled = false;
-        _alwaysOnTopEnabled = false;
-
-        _updatingControls = false;
-    }
     protected override void OnClosed(
         EventArgs e)
     {
