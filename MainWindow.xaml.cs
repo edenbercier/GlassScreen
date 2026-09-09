@@ -615,6 +615,30 @@ public partial class MainWindow : Window
                 _selectedWindows[0];
         }
     }
+    private void MinimizeButton_Click(
+        object sender,
+        RoutedEventArgs e)
+    {
+        WindowState =
+            System.Windows.WindowState.Minimized;
+    }
+
+    private void MaximizeButton_Click(
+        object sender,
+        RoutedEventArgs e)
+    {
+        WindowState =
+            WindowState == System.Windows.WindowState.Maximized
+                ? System.Windows.WindowState.Normal
+                : System.Windows.WindowState.Maximized;
+    }
+
+    private void CloseButton_Click(
+        object sender,
+        RoutedEventArgs e)
+    {
+        Close();
+    }
     private void ShowGlassScreen()
     {
         Show();
