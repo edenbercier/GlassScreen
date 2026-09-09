@@ -632,7 +632,7 @@ public partial class MainWindow : Window
 
     private void UpdateEmptyState()
     {
-        NoWindowsText.Visibility =
+        EmptyStateCard.Visibility =
             _selectedWindows.Count == 0
                 ? Visibility.Visible
                 : Visibility.Collapsed;
