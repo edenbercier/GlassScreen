@@ -1,0 +1,69 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:models="using:GlassScreenMac.Models"
+        mc:Ignorable="d"
+        d:DesignWidth="800"
+        d:DesignHeight="450"
+        x:Class="GlassScreenMac.MainWindow"
+        Title="GlassScreenMac"
+        Width="700"
+        Height="500"
+        MinWidth="500"
+        MinHeight="350">
+
+    <Grid Margin="24"
+          RowDefinitions="Auto,Auto,*,Auto">
+
+        <TextBlock Grid.Row="0"
+                   Text="GlassScreen"
+                   FontSize="28"
+                   FontWeight="SemiBold"/>
+
+        <TextBlock Grid.Row="1"
+                   Margin="0,6,0,18"
+                   Text="Select an open window to control."
+                   FontSize="14"
+                   Opacity="0.7"/>
+
+        <Border Grid.Row="2"
+                BorderThickness="1"
+                CornerRadius="8"
+                Padding="8">
+
+            <ListBox x:Name="WindowListBox">
+                <ListBox.ItemTemplate>
+                    <DataTemplate x:DataType="models:WindowInfo">
+                        <StackPanel Margin="8">
+                            <TextBlock Text="{Binding DisplayName}"
+                                       FontSize="16"/>
+
+                            <TextBlock Text="{Binding OwnerPid, StringFormat='Process ID: {0}'}"
+                                       FontSize="12"
+                                       Opacity="0.6"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+
+        </Border>
+
+        <Grid Grid.Row="3"
+              Margin="0,18,0,0"
+              ColumnDefinitions="*,Auto">
+
+            <TextBlock x:Name="StatusText"
+                       VerticalAlignment="Center"
+                       Text="Ready"/>
+
+            <Button x:Name="RefreshButton"
+                    Grid.Column="1"
+                    Padding="18,8"
+                    Content="Refresh Windows"/>
+
+        </Grid>
+
+    </Grid>
+
+</Window>
