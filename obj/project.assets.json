@@ -107,6 +107,22 @@
           "buildTransitive/Avalonia.BuildServices.targets": {}
         }
       },
+      "Avalonia.Controls.WebView/12.1.0": {
+        "type": "package",
+        "dependencies": {
+          "Avalonia": "12.0.0"
+        },
+        "compile": {
+          "lib/net10.0/Avalonia.Controls.WebView.dll": {}
+        },
+        "runtime": {
+          "lib/net10.0/Avalonia.Controls.WebView.dll": {}
+        },
+        "build": {
+          "buildTransitive/Avalonia.Controls.WebView.props": {},
+          "buildTransitive/Avalonia.Controls.WebView.targets": {}
+        }
+      },
       "Avalonia.Desktop/12.1.2": {
         "type": "package",
         "dependencies": {
@@ -841,6 +857,31 @@
         "tools/netstandard2.0/Avalonia.BuildServices.Collector.dll",
         "tools/netstandard2.0/Avalonia.BuildServices.dll",
         "tools/netstandard2.0/runtimeconfig.json"
+      ]
+    },
+    "Avalonia.Controls.WebView/12.1.0": {
+      "sha512": "imv2/+IYFa17ZBmQZG6TtNYXLC6m3vNw4JZLfhL3Eec9nXEFD2tPhA31ZIwbcvXK910eLABw+5yoGvbkR0AOuA==",
+      "type": "package",
+      "path": "avalonia.controls.webview/12.1.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "README.md",
+        "_manifest/cyclonedx/bom.cdx.json",
+        "avalonia.controls.webview.12.1.0.nupkg.sha512",
+        "avalonia.controls.webview.nuspec",
+        "build/Avalonia.Controls.WebView.props",
+        "build/Avalonia.Controls.WebView.targets",
+        "build/Microsoft.AspNetCore.StaticWebAssets.props",
+        "buildTransitive/Avalonia.Controls.WebView.props",
+        "buildTransitive/Avalonia.Controls.WebView.targets",
+        "icon.png",
+        "lib/net10.0-android36.0/Avalonia.Controls.WebView.dll",
+        "lib/net10.0-android36.0/Avalonia.Controls.WebView.xml",
+        "lib/net10.0-browser1.0/Avalonia.Controls.WebView.dll",
+        "lib/net10.0/Avalonia.Controls.WebView.dll",
+        "lib/net8.0/Avalonia.Controls.WebView.dll",
+        "staticwebassets/av-webview.mjs"
       ]
     },
     "Avalonia.Desktop/12.1.2": {
@@ -1609,6 +1650,7 @@
   "projectFileDependencyGroups": {
     "net10.0": [
       "Avalonia >= 12.1.2",
+      "Avalonia.Controls.WebView >= 12.1.0",
       "Avalonia.Desktop >= 12.1.2",
       "Avalonia.Fonts.Inter >= 12.1.2",
       "Avalonia.Themes.Fluent >= 12.1.2",
@@ -1663,6 +1705,10 @@
           "Avalonia": {
             "target": "Package",
             "version": "[12.1.2, )"
+          },
+          "Avalonia.Controls.WebView": {
+            "target": "Package",
+            "version": "[12.1.0, )"
           },
           "Avalonia.Desktop": {
             "target": "Package",

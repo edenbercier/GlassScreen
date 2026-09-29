@@ -144,4 +144,15 @@ public static class MacNativeMethods
             CFRelease(key);
         }
     }
+    private const string SkyLight =
+        "/System/Library/PrivateFrameworks/SkyLight.framework/SkyLight";
+
+    [DllImport(SkyLight)]
+    public static extern int CGSMainConnectionID();
+
+    [DllImport(SkyLight)]
+    public static extern int CGSSetWindowAlpha(
+        int connectionId,
+        uint windowId,
+        float alpha);
 }

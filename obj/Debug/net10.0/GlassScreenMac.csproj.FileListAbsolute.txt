@@ -89,3 +89,4 @@
 /Users/edenbercier/RiderProjects/GlassScreenMac/obj/Debug/net10.0/GlassScreenMac.pdb
 /Users/edenbercier/RiderProjects/GlassScreenMac/obj/Debug/net10.0/GlassScreenMac.genruntimeconfig.cache
 /Users/edenbercier/RiderProjects/GlassScreenMac/obj/Debug/net10.0/ref/GlassScreenMac.dll
+/Users/edenbercier/RiderProjects/GlassScreenMac/bin/Debug/net10.0/Avalonia.Controls.WebView.dll

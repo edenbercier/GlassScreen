@@ -50,6 +50,10 @@
               "target": "Package",
               "version": "[12.1.2, )"
             },
+            "Avalonia.Controls.WebView": {
+              "target": "Package",
+              "version": "[12.1.0, )"
+            },
             "Avalonia.Desktop": {
               "target": "Package",
               "version": "[12.1.2, )"

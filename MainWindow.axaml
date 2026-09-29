@@ -1,68 +1,382 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:models="using:GlassScreenMac.Models"
-        mc:Ignorable="d"
-        d:DesignWidth="800"
-        d:DesignHeight="450"
         x:Class="GlassScreenMac.MainWindow"
-        Title="GlassScreenMac"
-        Width="700"
-        Height="500"
-        MinWidth="500"
-        MinHeight="350">
+        Title="GlassScreen"
+        Width="1200"
+        Height="800"
+        MinWidth="800"
+        MinHeight="600"
+        Background="#F5F6F7"
+        FontFamily="Inter"
+        ExtendClientAreaToDecorationsHint="True">
 
-    <Grid Margin="24"
-          RowDefinitions="Auto,Auto,*,Auto">
+    <Window.Resources>
+        <SolidColorBrush x:Key="ChromeBrush">#F1F3F4</SolidColorBrush>
+        <SolidColorBrush x:Key="ToolbarBrush">#FFFFFF</SolidColorBrush>
+        <SolidColorBrush x:Key="BorderBrush">#D4D8DB</SolidColorBrush>
+        <SolidColorBrush x:Key="AccentBrush">#2F8FA3</SolidColorBrush>
+        <SolidColorBrush x:Key="PrimaryTextBrush">#202124</SolidColorBrush>
+        <SolidColorBrush x:Key="SecondaryTextBrush">#66757A</SolidColorBrush>
+    </Window.Resources>
 
-        <TextBlock Grid.Row="0"
-                   Text="GlassScreen"
-                   FontSize="28"
-                   FontWeight="SemiBold"/>
+    <Grid RowDefinitions="Auto,Auto,*,Auto">
 
-        <TextBlock Grid.Row="1"
-                   Margin="0,6,0,18"
-                   Text="Select an open window to control."
-                   FontSize="14"
-                   Opacity="0.7"/>
+        <!-- TAB STRIP -->
+        <Border Grid.Row="0"
+                Background="{StaticResource ChromeBrush}"
+                BorderBrush="{StaticResource BorderBrush}"
+                BorderThickness="0,0,0,1"
+                Padding="78,4,8,4">
 
-        <Border Grid.Row="2"
-                BorderThickness="1"
-                CornerRadius="8"
-                Padding="8">
+            <Grid ColumnDefinitions="Auto,Auto,*"
+                  ColumnSpacing="5">
 
-            <ListBox x:Name="WindowListBox">
-                <ListBox.ItemTemplate>
-                    <DataTemplate x:DataType="models:WindowInfo">
-                        <StackPanel Margin="8">
-                            <TextBlock Text="{Binding DisplayName}"
-                                       FontSize="16"/>
+                <!-- ACTIVE TAB -->
+                <Border Grid.Column="0"
+                        Width="220"
+                        Height="30"
+                        Background="White"
+                        CornerRadius="7,7,0,0"
+                        BorderBrush="{StaticResource BorderBrush}"
+                        BorderThickness="1,1,1,0"
+                        Padding="8,0">
 
-                            <TextBlock Text="{Binding OwnerPid, StringFormat='Process ID: {0}'}"
-                                       FontSize="12"
-                                       Opacity="0.6"/>
-                        </StackPanel>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
+                    <Grid ColumnDefinitions="Auto,*,Auto"
+                          ColumnSpacing="7">
 
+                        <Image Grid.Column="0"
+                               Source="avares://GlassScreenMac/Assets/glassscreen-logo.png"
+                               Width="18"
+                               Height="18"
+                               Stretch="Uniform"
+                               VerticalAlignment="Center"/>
+
+                        <TextBlock Grid.Column="1"
+                                   Text="GlassScreen"
+                                   FontSize="12"
+                                   FontWeight="SemiBold"
+                                   Foreground="{StaticResource PrimaryTextBrush}"
+                                   VerticalAlignment="Center"
+                                   TextTrimming="CharacterEllipsis"/>
+
+                        <Button Grid.Column="2"
+                                Width="22"
+                                Height="22"
+                                Padding="0"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                HorizontalContentAlignment="Center"
+                                VerticalContentAlignment="Center">
+
+                            <TextBlock Text="×"
+                                       FontSize="14"
+                                       Foreground="#555B5E"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"/>
+                        </Button>
+
+                    </Grid>
+                </Border>
+
+                <!-- NEW TAB -->
+                <Button Grid.Column="1"
+                        Width="28"
+                        Height="28"
+                        Padding="0"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        HorizontalContentAlignment="Center"
+                        VerticalContentAlignment="Center">
+
+                    <TextBlock Text="+"
+                               FontSize="18"
+                               Foreground="#444B4E"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
+                </Button>
+
+            </Grid>
         </Border>
 
-        <Grid Grid.Row="3"
-              Margin="0,18,0,0"
-              ColumnDefinitions="*,Auto">
+        <!-- NAVIGATION TOOLBAR -->
+        <Border Grid.Row="1"
+                Background="{StaticResource ToolbarBrush}"
+                BorderBrush="{StaticResource BorderBrush}"
+                BorderThickness="0,0,0,1"
+                Padding="8,5">
 
-            <TextBlock x:Name="StatusText"
-                       VerticalAlignment="Center"
-                       Text="Ready"/>
+            <Grid ColumnDefinitions="Auto,Auto,Auto,*,Auto"
+                  ColumnSpacing="5">
 
-            <Button x:Name="RefreshButton"
-                    Grid.Column="1"
-                    Padding="18,8"
-                    Content="Refresh Windows"/>
+                <!-- BACK -->
+                <Button x:Name="BackButton"
+                        Grid.Column="0"
+                        Width="32"
+                        Height="30"
+                        Padding="0"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        HorizontalContentAlignment="Center"
+                        VerticalContentAlignment="Center">
+
+                    <TextBlock Text="←"
+                               FontSize="17"
+                               LineHeight="18"
+                               Foreground="#454B4E"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
+                </Button>
+
+                <!-- FORWARD -->
+                <Button x:Name="ForwardButton"
+                        Grid.Column="1"
+                        Width="32"
+                        Height="30"
+                        Padding="0"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        HorizontalContentAlignment="Center"
+                        VerticalContentAlignment="Center">
+
+                    <TextBlock Text="→"
+                               FontSize="17"
+                               LineHeight="18"
+                               Foreground="#454B4E"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
+                </Button>
+
+                <!-- RELOAD -->
+                <Button x:Name="ReloadButton"
+                        Grid.Column="2"
+                        Width="32"
+                        Height="30"
+                        Padding="0"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        HorizontalContentAlignment="Center"
+                        VerticalContentAlignment="Center">
+
+                    <TextBlock Text="↻"
+                               FontSize="17"
+                               LineHeight="18"
+                               Foreground="#454B4E"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
+                </Button>
+
+                <!-- ADDRESS BAR -->
+                <Border Grid.Column="3"
+                        Height="30"
+                        Margin="3,0"
+                        CornerRadius="7"
+                        Background="#FFFFFF"
+                        BorderBrush="#C9CED1"
+                        BorderThickness="1">
+
+                    <TextBox x:Name="AddressBar"
+                             Background="#FFFFFF"
+                             BorderThickness="0"
+                             Padding="10,2"
+                             VerticalContentAlignment="Center"
+                             Text=""
+                             PlaceholderText="Search the web or enter an address"
+                             Foreground="#202124"
+                             CaretBrush="#202124"
+                             SelectionBrush="#B8DDE5"/>
+                </Border>
+
+                <!-- GO -->
+                <Button x:Name="GoButton"
+                        Grid.Column="4"
+                        MinWidth="48"
+                        Height="30"
+                        Padding="10,0"
+                        Background="#E7EAEC"
+                        BorderBrush="#D0D5D8"
+                        BorderThickness="1"
+                        HorizontalContentAlignment="Center"
+                        VerticalContentAlignment="Center">
+
+                    <TextBlock Text="Go"
+                               Foreground="#303638"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
+                </Button>
+
+            </Grid>
+        </Border>
+
+        <!-- BROWSER CONTENT AREA -->
+        <Grid Grid.Row="2"
+              x:Name="BrowserHost"
+              ClipToBounds="True">
+
+            <!-- REAL WEB BROWSER - HIDDEN ON NEW TAB -->
+            <NativeWebView x:Name="WebView"
+                           IsVisible="False"/>
+
+            <!-- GLASSSCREEN NEW TAB PAGE -->
+            <Grid x:Name="NewTabPage">
+
+                <!-- DARK TEAL GRADIENT -->
+                <Border>
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0%,0%"
+                                             EndPoint="100%,100%">
+                            <GradientStop Color="#09242B"
+                                          Offset="0"/>
+                            <GradientStop Color="#0E3A44"
+                                          Offset="0.42"/>
+                            <GradientStop Color="#176070"
+                                          Offset="0.72"/>
+                            <GradientStop Color="#238092"
+                                          Offset="1"/>
+                        </LinearGradientBrush>
+                    </Border.Background>
+                </Border>
+
+                <!-- SUBTLE TOP GLOW -->
+                <Ellipse Width="900"
+                         Height="500"
+                         HorizontalAlignment="Center"
+                         VerticalAlignment="Top"
+                         Margin="0,-280,0,0"
+                         Fill="#10FFFFFF"/>
+
+                <!-- LARGE PALE SWOOP -->
+                <Ellipse Width="1800"
+                         Height="760"
+                         HorizontalAlignment="Center"
+                         VerticalAlignment="Bottom"
+                         Margin="0,0,0,-570"
+                         Fill="#E6EFF1"/>
+
+                <!-- TRANSLUCENT SECOND SWOOP -->
+                <Ellipse Width="1600"
+                         Height="650"
+                         HorizontalAlignment="Center"
+                         VerticalAlignment="Bottom"
+                         Margin="0,0,0,-525"
+                         Fill="#76FFFFFF"/>
+
+                <!-- WELCOME CARD -->
+                <Border Width="500"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Padding="44,38"
+                        CornerRadius="20"
+                        Background="#FAFFFFFF"
+                        BorderBrush="#B9CDD1"
+                        BorderThickness="1"
+                        BoxShadow="0 10 30 0 #45000000">
+
+                    <StackPanel x:Name="BrowserPlaceholder"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Spacing="14">
+
+                        <Image Source="avares://GlassScreenMac/Assets/glassscreen-logo.png"
+                               Width="120"
+                               Height="120"
+                               Stretch="Uniform"
+                               HorizontalAlignment="Center"/>
+
+                        <TextBlock Text="Welcome to GlassScreen"
+                                   HorizontalAlignment="Center"
+                                   FontSize="28"
+                                   FontWeight="Medium"
+                                   Foreground="#193238"/>
+
+                        <TextBlock Text="See through your workspace."
+                                   HorizontalAlignment="Center"
+                                   FontSize="14"
+                                   Foreground="#657A80"/>
+
+                        <Border Width="360"
+                                Height="42"
+                                Margin="0,10,0,0"
+                                CornerRadius="10"
+                                Background="#F2F5F6"
+                                BorderBrush="#C0CED1"
+                                BorderThickness="1">
+
+                            <TextBlock Text="Search the web or enter an address"
+                                       Margin="14,0"
+                                       VerticalAlignment="Center"
+                                       Foreground="#74878C"
+                                       FontSize="13"/>
+
+                        </Border>
+
+                    </StackPanel>
+                </Border>
+
+            </Grid>
 
         </Grid>
+
+        <!-- GLASSSCREEN CONTROLS -->
+        <Border Grid.Row="3"
+                Background="#F4F6F7"
+                BorderBrush="{StaticResource BorderBrush}"
+                BorderThickness="0,1,0,0"
+                Padding="10,6">
+
+            <Grid ColumnDefinitions="Auto,180,Auto,Auto,Auto,*,Auto"
+                  ColumnSpacing="10">
+
+                <TextBlock Grid.Column="0"
+                           Text="Opacity"
+                           VerticalAlignment="Center"
+                           Foreground="{StaticResource PrimaryTextBrush}"/>
+
+                <Slider x:Name="OpacitySlider"
+                        Grid.Column="1"
+                        Minimum="20"
+                        Maximum="100"
+                        Value="100"
+                        VerticalAlignment="Center"/>
+
+                <TextBlock x:Name="OpacityValue"
+                           Grid.Column="2"
+                           Text="100%"
+                           MinWidth="42"
+                           VerticalAlignment="Center"
+                           Foreground="{StaticResource SecondaryTextBrush}"/>
+
+                <CheckBox x:Name="ClickThroughCheckBox"
+                          Grid.Column="3"
+                          Content="Click Through"
+                          VerticalAlignment="Center"
+                          Foreground="{StaticResource PrimaryTextBrush}"/>
+
+                <CheckBox x:Name="AlwaysOnTopCheckBox"
+                          Grid.Column="4"
+                          Content="Always On Top"
+                          VerticalAlignment="Center"
+                          Foreground="{StaticResource PrimaryTextBrush}"/>
+
+                <Button x:Name="RestoreButton"
+                        Grid.Column="6"
+                        Height="30"
+                        Padding="12,0"
+                        Background="#E1E5E7"
+                        BorderBrush="#CDD2D5"
+                        BorderThickness="1"
+                        HorizontalContentAlignment="Center"
+                        VerticalContentAlignment="Center">
+
+                    <TextBlock Text="Restore"
+                               Foreground="#303638"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
+
+                </Button>
+
+            </Grid>
+
+        </Border>
 
     </Grid>
 
