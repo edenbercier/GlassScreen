@@ -19,6 +19,38 @@
         <SolidColorBrush x:Key="SecondaryTextBrush">#66757A</SolidColorBrush>
     </Window.Resources>
 
+    <Window.Styles>
+        <Style Selector="TextBox#AddressBar">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="#202124"/>
+        </Style>
+
+        <Style Selector="TextBox#AddressBar:pointerover">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="#202124"/>
+        </Style>
+
+        <Style Selector="TextBox#AddressBar:focus">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="#202124"/>
+        </Style>
+
+        <Style Selector="TextBox#WelcomeSearchBar">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="#193238"/>
+        </Style>
+
+        <Style Selector="TextBox#WelcomeSearchBar:pointerover">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="#193238"/>
+        </Style>
+
+        <Style Selector="TextBox#WelcomeSearchBar:focus">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="#193238"/>
+        </Style>
+    </Window.Styles>
+
     <Grid RowDefinitions="Auto,Auto,*,Auto">
 
         <!-- TAB STRIP -->
@@ -170,20 +202,22 @@
                         Height="30"
                         Margin="3,0"
                         CornerRadius="7"
-                        Background="#FFFFFF"
+                        Background="White"
                         BorderBrush="#C9CED1"
                         BorderThickness="1">
 
                     <TextBox x:Name="AddressBar"
-                             Background="#FFFFFF"
+                             Background="White"
+                             Foreground="#202124"
+                             CaretBrush="#202124"
+                             SelectionBrush="#B8DDE5"
                              BorderThickness="0"
+                             CornerRadius="7"
                              Padding="10,2"
                              VerticalContentAlignment="Center"
                              Text=""
-                             PlaceholderText="Search the web or enter an address"
-                             Foreground="#202124"
-                             CaretBrush="#202124"
-                             SelectionBrush="#B8DDE5"/>
+                             PlaceholderText="Search the web or enter an address"/>
+
                 </Border>
 
                 <!-- GO -->
@@ -212,14 +246,12 @@
               x:Name="BrowserHost"
               ClipToBounds="True">
 
-            <!-- REAL WEB BROWSER - HIDDEN ON NEW TAB -->
             <NativeWebView x:Name="WebView"
                            IsVisible="False"/>
 
             <!-- GLASSSCREEN NEW TAB PAGE -->
             <Grid x:Name="NewTabPage">
 
-                <!-- DARK TEAL GRADIENT -->
                 <Border>
                     <Border.Background>
                         <LinearGradientBrush StartPoint="0%,0%"
@@ -236,7 +268,6 @@
                     </Border.Background>
                 </Border>
 
-                <!-- SUBTLE TOP GLOW -->
                 <Ellipse Width="900"
                          Height="500"
                          HorizontalAlignment="Center"
@@ -244,7 +275,6 @@
                          Margin="0,-280,0,0"
                          Fill="#10FFFFFF"/>
 
-                <!-- LARGE PALE SWOOP -->
                 <Ellipse Width="1800"
                          Height="760"
                          HorizontalAlignment="Center"
@@ -252,7 +282,6 @@
                          Margin="0,0,0,-570"
                          Fill="#E6EFF1"/>
 
-                <!-- TRANSLUCENT SECOND SWOOP -->
                 <Ellipse Width="1600"
                          Height="650"
                          HorizontalAlignment="Center"
@@ -293,19 +322,26 @@
                                    FontSize="14"
                                    Foreground="#657A80"/>
 
+                        <!-- FUNCTIONAL WELCOME SEARCH BAR -->
                         <Border Width="360"
                                 Height="42"
                                 Margin="0,10,0,0"
                                 CornerRadius="10"
-                                Background="#F2F5F6"
+                                Background="White"
                                 BorderBrush="#C0CED1"
                                 BorderThickness="1">
 
-                            <TextBlock Text="Search the web or enter an address"
-                                       Margin="14,0"
-                                       VerticalAlignment="Center"
-                                       Foreground="#74878C"
-                                       FontSize="13"/>
+                            <TextBox x:Name="WelcomeSearchBar"
+                                     Background="White"
+                                     Foreground="#193238"
+                                     CaretBrush="#193238"
+                                     SelectionBrush="#B8DDE5"
+                                     BorderThickness="0"
+                                     CornerRadius="10"
+                                     Padding="14,0"
+                                     VerticalContentAlignment="Center"
+                                     FontSize="13"
+                                     PlaceholderText="Search the web or enter an address"/>
 
                         </Border>
 

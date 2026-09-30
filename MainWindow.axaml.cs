@@ -48,7 +48,8 @@ public partial class MainWindow : Window
             }
         };
 
-        GoButton.Click += (_, _) => Navigate();
+        GoButton.Click += (_, _) => Navigate(AddressBar.Text);
+
         ReloadButton.Click += (_, _) => Reload();
         BackButton.Click += (_, _) => GoBack();
         ForwardButton.Click += (_, _) => GoForward();
@@ -57,7 +58,17 @@ public partial class MainWindow : Window
         {
             if (args.Key == Key.Enter)
             {
-                Navigate();
+                Navigate(AddressBar.Text);
+                args.Handled = true;
+            }
+        };
+
+        WelcomeSearchBar.KeyDown += (_, args) =>
+        {
+            if (args.Key == Key.Enter)
+            {
+                Navigate(WelcomeSearchBar.Text);
+                args.Handled = true;
             }
         };
 
@@ -118,31 +129,48 @@ public partial class MainWindow : Window
         _windowEffects.Reapply();
     }
 
-    private void Navigate()
+    private void Navigate(string? input)
     {
-        var address = AddressBar.Text?.Trim();
+        input = input?.Trim();
 
-        if (string.IsNullOrWhiteSpace(address))
+        if (string.IsNullOrWhiteSpace(input))
         {
             return;
         }
 
-        if (!address.StartsWith(
-                "http://",
-                StringComparison.OrdinalIgnoreCase) &&
-            !address.StartsWith(
-                "https://",
-                StringComparison.OrdinalIgnoreCase))
-        {
-            address = "https://" + address;
-        }
+        Uri uri;
 
-        if (!Uri.TryCreate(
-                address,
+        // Complete URL
+        if (Uri.TryCreate(
+                input,
                 UriKind.Absolute,
-                out var uri))
+                out var absoluteUri) &&
+            (absoluteUri.Scheme == Uri.UriSchemeHttp ||
+             absoluteUri.Scheme == Uri.UriSchemeHttps))
         {
-            return;
+            uri = absoluteUri;
+        }
+
+        // Website without protocol: google.com
+        else if (!input.Contains(' ') &&
+                 input.Contains('.'))
+        {
+            if (!Uri.TryCreate(
+                    "https://" + input,
+                    UriKind.Absolute,
+                    out uri!))
+            {
+                return;
+            }
+        }
+
+        // Otherwise perform a Google search
+        else
+        {
+            var search = Uri.EscapeDataString(input);
+
+            uri = new Uri(
+                $"https://www.google.com/search?q={search}");
         }
 
         AddressBar.Text = uri.ToString();

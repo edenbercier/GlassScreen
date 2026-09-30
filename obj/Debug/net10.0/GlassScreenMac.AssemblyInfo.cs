@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("GlassScreenMac")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+dd71178bfc98867fc4864bc11fb778fd012be234")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e6867b3821fe7b9b800827d071c7d33312ffbaee")]
 [assembly: System.Reflection.AssemblyProductAttribute("GlassScreenMac")]
 [assembly: System.Reflection.AssemblyTitleAttribute("GlassScreenMac")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
