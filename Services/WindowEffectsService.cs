@@ -6,7 +6,8 @@ namespace GlassScreenMac.Services;
 
 public sealed class WindowEffectsService
 {
-    private const string ObjectiveCLibrary = "/usr/lib/libobjc.A.dylib";
+    private const string ObjectiveCLibrary =
+        "/usr/lib/libobjc.A.dylib";
 
     private readonly Window _window;
 
@@ -20,7 +21,8 @@ public sealed class WindowEffectsService
 
     public WindowEffectsService(Window window)
     {
-        _window = window ?? throw new ArgumentNullException(nameof(window));
+        _window = window ??
+            throw new ArgumentNullException(nameof(window));
     }
 
     public bool Initialize()
@@ -35,7 +37,8 @@ public sealed class WindowEffectsService
             return false;
         }
 
-        var platformHandle = _window.TryGetPlatformHandle();
+        var platformHandle =
+            _window.TryGetPlatformHandle();
 
         if (platformHandle == null ||
             platformHandle.Handle == IntPtr.Zero ||
@@ -61,7 +64,7 @@ public sealed class WindowEffectsService
             return;
         }
 
-        ApplyOpacity();
+        ApplyToApplicationWindows();
     }
 
     public void SetClickThrough(bool enabled)
@@ -73,7 +76,7 @@ public sealed class WindowEffectsService
             return;
         }
 
-        ApplyClickThrough();
+        ApplyToApplicationWindows();
     }
 
     public void SetAlwaysOnTop(bool enabled)
@@ -85,7 +88,7 @@ public sealed class WindowEffectsService
             return;
         }
 
-        ApplyAlwaysOnTop();
+        ApplyToApplicationWindows();
     }
 
     public void Reapply()
@@ -95,9 +98,7 @@ public sealed class WindowEffectsService
             return;
         }
 
-        ApplyOpacity();
-        ApplyClickThrough();
-        ApplyAlwaysOnTop();
+        ApplyToApplicationWindows();
     }
 
     public void Restore()
@@ -111,31 +112,87 @@ public sealed class WindowEffectsService
             return;
         }
 
-        Reapply();
+        ApplyToApplicationWindows();
     }
 
-    private void ApplyOpacity()
+    private void ApplyToApplicationWindows()
     {
+        // Always apply to the main GlassScreen window.
+        ApplyEffects(_nativeWindow);
+
+        IntPtr applicationClass =
+            objc_getClass("NSApplication");
+
+        if (applicationClass == IntPtr.Zero)
+        {
+            return;
+        }
+
+        IntPtr application =
+            SendIntPtr(
+                applicationClass,
+                "sharedApplication");
+
+        if (application == IntPtr.Zero)
+        {
+            return;
+        }
+
+        IntPtr windows =
+            SendIntPtr(
+                application,
+                "windows");
+
+        if (windows == IntPtr.Zero)
+        {
+            return;
+        }
+
+        nint count =
+            SendIntegerResult(
+                windows,
+                "count");
+
+        for (nint index = 0; index < count; index++)
+        {
+            IntPtr nativeWindow =
+                SendIntPtrWithInteger(
+                    windows,
+                    "objectAtIndex:",
+                    index);
+
+            if (nativeWindow == IntPtr.Zero ||
+                nativeWindow == _nativeWindow)
+            {
+                continue;
+            }
+
+            ApplyEffects(nativeWindow);
+        }
+    }
+
+    private void ApplyEffects(IntPtr nativeWindow)
+    {
+        if (nativeWindow == IntPtr.Zero)
+        {
+            return;
+        }
+
         SendDouble(
-            _nativeWindow,
+            nativeWindow,
             "setAlphaValue:",
             _opacity);
-    }
 
-    private void ApplyClickThrough()
-    {
         SendBool(
-            _nativeWindow,
+            nativeWindow,
             "setIgnoresMouseEvents:",
             _clickThrough);
-    }
 
-    private void ApplyAlwaysOnTop()
-    {
-        nint level = _alwaysOnTop ? 3 : 0;
+        nint level =
+            _alwaysOnTop ? 3 : 0;
 
         SendInteger(
-            _nativeWindow,
+            nativeWindow,
             "setLevel:",
             level);
     }
@@ -150,9 +207,39 @@ public sealed class WindowEffectsService
         return Initialize();
     }
 
-    private static IntPtr GetSelector(string selectorName)
+    private static IntPtr GetSelector(
+        string selectorName)
     {
         return sel_registerName(selectorName);
+    }
+
+    private static IntPtr SendIntPtr(
+        IntPtr target,
+        string selector)
+    {
+        return objc_msgSend_IntPtr(
+            target,
+            GetSelector(selector));
+    }
+
+    private static IntPtr SendIntPtrWithInteger(
+        IntPtr target,
+        string selector,
+        nint value)
+    {
+        return objc_msgSend_IntPtr_integer(
+            target,
+            GetSelector(selector),
+            value);
+    }
+
+    private static nint SendIntegerResult(
+        IntPtr target,
+        string selector)
+    {
+        return objc_msgSend_integer_result(
+            target,
+            GetSelector(selector));
     }
 
     private static void SendDouble(
@@ -191,6 +278,32 @@ public sealed class WindowEffectsService
     [DllImport(ObjectiveCLibrary)]
     private static extern IntPtr sel_registerName(
         string name);
+
+    [DllImport(ObjectiveCLibrary)]
+    private static extern IntPtr objc_getClass(
+        string name);
+
+    [DllImport(
+        ObjectiveCLibrary,
+        EntryPoint = "objc_msgSend")]
+    private static extern IntPtr objc_msgSend_IntPtr(
+        IntPtr receiver,
+        IntPtr selector);
+
+    [DllImport(
+        ObjectiveCLibrary,
+        EntryPoint = "objc_msgSend")]
+    private static extern IntPtr objc_msgSend_IntPtr_integer(
+        IntPtr receiver,
+        IntPtr selector,
+        nint value);
+
+    [DllImport(
+        ObjectiveCLibrary,
+        EntryPoint = "objc_msgSend")]
+    private static extern nint objc_msgSend_integer_result(
+        IntPtr receiver,
+        IntPtr selector);
 
     [DllImport(
         ObjectiveCLibrary,

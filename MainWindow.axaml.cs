@@ -37,23 +37,92 @@ public partial class MainWindow : Window
         _fullScreenService = new GlassScreenFullScreenService(this);
         _globalShortcuts = new MacGlobalShortcutService();
 
-        Opened += (_, _) =>
+        Opened += async (_, _) =>
+{
+    _windowEffects.Initialize();
+
+    _globalShortcuts.ClickThroughPressed += ToggleClickThrough;
+    _globalShortcuts.AlwaysOnTopPressed += ToggleAlwaysOnTop;
+    _globalShortcuts.FullScreenPressed += ToggleFullScreen;
+
+    if (_globalShortcuts.HasInputMonitoringPermission())
+    {
+        _globalShortcuts.Start();
+    }
+    else
+    {
+        _globalShortcuts.RequestInputMonitoringPermission();
+
+        var permissionDialog = new Window
         {
-            _windowEffects.Initialize();
-
-            _globalShortcuts.ClickThroughPressed += ToggleClickThrough;
-            _globalShortcuts.AlwaysOnTopPressed += ToggleAlwaysOnTop;
-            _globalShortcuts.FullScreenPressed += ToggleFullScreen;
-
-            if (!_globalShortcuts.HasInputMonitoringPermission())
-            {
-                _globalShortcuts.RequestInputMonitoringPermission();
-            }
-
-            _globalShortcuts.Start();
-
-            CreateNewTab();
+            Title = "GlassScreen Permission",
+            Width = 440,
+            Height = 230,
+            CanResize = false,
+            WindowStartupLocation = WindowStartupLocation.CenterOwner
         };
+
+        var message = new TextBlock
+        {
+            Text =
+                "Global Shortcuts Need Permission\n\n" +
+                "GlassScreen needs Input Monitoring so its keyboard " +
+                "shortcuts work while you're using other apps.\n\n" +
+                "Enable GlassScreen in Input Monitoring, then reopen GlassScreen.",
+            TextWrapping = TextWrapping.Wrap,
+            Margin = new Avalonia.Thickness(24)
+        };
+
+        var openSettingsButton = new Button
+        {
+            Content = "Open System Settings",
+            HorizontalAlignment = HorizontalAlignment.Center,
+            Margin = new Avalonia.Thickness(8)
+        };
+
+        var notNowButton = new Button
+        {
+            Content = "Not Now",
+            HorizontalAlignment = HorizontalAlignment.Center,
+            Margin = new Avalonia.Thickness(8)
+        };
+
+        openSettingsButton.Click += (_, _) =>
+        {
+            MacPermissionService.OpenInputMonitoringSettings();
+            permissionDialog.Close();
+        };
+
+        notNowButton.Click += (_, _) =>
+        {
+            permissionDialog.Close();
+        };
+
+        var buttons = new StackPanel
+        {
+            Orientation = Orientation.Horizontal,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            Children =
+            {
+                openSettingsButton,
+                notNowButton
+            }
+        };
+
+        permissionDialog.Content = new StackPanel
+        {
+            Children =
+            {
+                message,
+                buttons
+            }
+        };
+
+        await permissionDialog.ShowDialog(this);
+    }
+
+    CreateNewTab();
+};
 
         Closed += (_, _) =>
         {
@@ -149,7 +218,8 @@ public partial class MainWindow : Window
         };
 
         BrowserContent.Children.Add(webView);
-
+        MacWebViewService.EnableElementFullscreen(webView);
+        
         var titleText = new TextBlock
         {
             Text = "New Tab",
@@ -447,8 +517,11 @@ public partial class MainWindow : Window
         ClickThroughCheckBox.IsChecked =
             enabled;
 
-        _windowEffects.SetClickThrough(
-            enabled);
+        _windowEffects.SetClickThrough(enabled);
+
+        // Reapply opacity/topmost to any WebKit fullscreen window
+        // that was created after those settings were originally applied.
+        _windowEffects.Reapply();
     }
 
     private void ToggleAlwaysOnTop()
