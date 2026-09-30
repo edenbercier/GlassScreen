@@ -60,58 +60,16 @@
                 BorderThickness="0,0,0,1"
                 Padding="78,4,8,4">
 
-            <Grid ColumnDefinitions="Auto,Auto,*"
-                  ColumnSpacing="5">
+            <StackPanel Orientation="Horizontal"
+                        Spacing="5">
 
-                <!-- ACTIVE TAB -->
-                <Border Grid.Column="0"
-                        Width="220"
-                        Height="30"
-                        Background="White"
-                        CornerRadius="7,7,0,0"
-                        BorderBrush="{StaticResource BorderBrush}"
-                        BorderThickness="1,1,1,0"
-                        Padding="8,0">
-
-                    <Grid ColumnDefinitions="Auto,*,Auto"
-                          ColumnSpacing="7">
-
-                        <Image Grid.Column="0"
-                               Source="avares://GlassScreenMac/Assets/glassscreen-logo.png"
-                               Width="18"
-                               Height="18"
-                               Stretch="Uniform"
-                               VerticalAlignment="Center"/>
-
-                        <TextBlock Grid.Column="1"
-                                   Text="GlassScreen"
-                                   FontSize="12"
-                                   FontWeight="SemiBold"
-                                   Foreground="{StaticResource PrimaryTextBrush}"
-                                   VerticalAlignment="Center"
-                                   TextTrimming="CharacterEllipsis"/>
-
-                        <Button Grid.Column="2"
-                                Width="22"
-                                Height="22"
-                                Padding="0"
-                                Background="Transparent"
-                                BorderThickness="0"
-                                HorizontalContentAlignment="Center"
-                                VerticalContentAlignment="Center">
-
-                            <TextBlock Text="×"
-                                       FontSize="14"
-                                       Foreground="#555B5E"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"/>
-                        </Button>
-
-                    </Grid>
-                </Border>
+                <!-- DYNAMIC TABS ARE ADDED HERE -->
+                <StackPanel x:Name="TabPanel"
+                            Orientation="Horizontal"
+                            Spacing="5"/>
 
                 <!-- NEW TAB -->
-                <Button Grid.Column="1"
+                <Button x:Name="NewTabButton"
                         Width="28"
                         Height="28"
                         Padding="0"
@@ -125,9 +83,11 @@
                                Foreground="#444B4E"
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"/>
+
                 </Button>
 
-            </Grid>
+            </StackPanel>
+
         </Border>
 
         <!-- NAVIGATION TOOLBAR -->
@@ -246,12 +206,13 @@
               x:Name="BrowserHost"
               ClipToBounds="True">
 
-            <NativeWebView x:Name="WebView"
-                           IsVisible="False"/>
+            <!-- EACH TAB'S WEBVIEW IS ADDED HERE -->
+            <Grid x:Name="BrowserContent"/>
 
             <!-- GLASSSCREEN NEW TAB PAGE -->
             <Grid x:Name="NewTabPage">
 
+                <!-- DARK TEAL GRADIENT -->
                 <Border>
                     <Border.Background>
                         <LinearGradientBrush StartPoint="0%,0%"
@@ -268,6 +229,7 @@
                     </Border.Background>
                 </Border>
 
+                <!-- SUBTLE TOP GLOW -->
                 <Ellipse Width="900"
                          Height="500"
                          HorizontalAlignment="Center"
@@ -275,6 +237,7 @@
                          Margin="0,-280,0,0"
                          Fill="#10FFFFFF"/>
 
+                <!-- LARGE PALE SWOOP -->
                 <Ellipse Width="1800"
                          Height="760"
                          HorizontalAlignment="Center"
@@ -282,6 +245,7 @@
                          Margin="0,0,0,-570"
                          Fill="#E6EFF1"/>
 
+                <!-- TRANSLUCENT SECOND SWOOP -->
                 <Ellipse Width="1600"
                          Height="650"
                          HorizontalAlignment="Center"
