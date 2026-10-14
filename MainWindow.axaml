@@ -1,3 +1,4 @@
+
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="GlassScreenMac.MainWindow"
@@ -24,27 +25,22 @@
             <Setter Property="Background" Value="White"/>
             <Setter Property="Foreground" Value="#202124"/>
         </Style>
-
         <Style Selector="TextBox#AddressBar:pointerover">
             <Setter Property="Background" Value="White"/>
             <Setter Property="Foreground" Value="#202124"/>
         </Style>
-
         <Style Selector="TextBox#AddressBar:focus">
             <Setter Property="Background" Value="White"/>
             <Setter Property="Foreground" Value="#202124"/>
         </Style>
-
         <Style Selector="TextBox#WelcomeSearchBar">
             <Setter Property="Background" Value="White"/>
             <Setter Property="Foreground" Value="#193238"/>
         </Style>
-
         <Style Selector="TextBox#WelcomeSearchBar:pointerover">
             <Setter Property="Background" Value="White"/>
             <Setter Property="Foreground" Value="#193238"/>
         </Style>
-
         <Style Selector="TextBox#WelcomeSearchBar:focus">
             <Setter Property="Background" Value="White"/>
             <Setter Property="Foreground" Value="#193238"/>
@@ -54,21 +50,18 @@
     <Grid RowDefinitions="Auto,Auto,*,Auto">
 
         <!-- TAB STRIP -->
-        <Border Grid.Row="0"
+        <Border x:Name="TabStripBorder"
+                Grid.Row="0"
                 Background="{StaticResource ChromeBrush}"
                 BorderBrush="{StaticResource BorderBrush}"
                 BorderThickness="0,0,0,1"
                 Padding="78,4,8,4">
 
-            <StackPanel Orientation="Horizontal"
-                        Spacing="5">
-
-                <!-- DYNAMIC TABS ARE ADDED HERE -->
+            <StackPanel Orientation="Horizontal" Spacing="5">
                 <StackPanel x:Name="TabPanel"
                             Orientation="Horizontal"
                             Spacing="5"/>
 
-                <!-- NEW TAB -->
                 <Button x:Name="NewTabButton"
                         Width="28"
                         Height="28"
@@ -77,87 +70,62 @@
                         BorderThickness="0"
                         HorizontalContentAlignment="Center"
                         VerticalContentAlignment="Center">
-
                     <TextBlock Text="+"
                                FontSize="18"
                                Foreground="#444B4E"
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"/>
-
                 </Button>
-
             </StackPanel>
-
         </Border>
 
         <!-- NAVIGATION TOOLBAR -->
-        <Border Grid.Row="1"
+        <Border x:Name="NavigationToolbarBorder"
+                Grid.Row="1"
                 Background="{StaticResource ToolbarBrush}"
                 BorderBrush="{StaticResource BorderBrush}"
                 BorderThickness="0,0,0,1"
                 Padding="8,5">
 
-            <Grid ColumnDefinitions="Auto,Auto,Auto,*,Auto"
+            <Grid ColumnDefinitions="Auto,Auto,Auto,*,Auto,Auto"
                   ColumnSpacing="5">
 
-                <!-- BACK -->
                 <Button x:Name="BackButton"
                         Grid.Column="0"
                         Width="32"
                         Height="30"
                         Padding="0"
                         Background="Transparent"
-                        BorderThickness="0"
-                        HorizontalContentAlignment="Center"
-                        VerticalContentAlignment="Center">
-
+                        BorderThickness="0">
                     <TextBlock Text="←"
                                FontSize="17"
-                               LineHeight="18"
-                               Foreground="#454B4E"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"/>
+                               Foreground="#454B4E"/>
                 </Button>
 
-                <!-- FORWARD -->
                 <Button x:Name="ForwardButton"
                         Grid.Column="1"
                         Width="32"
                         Height="30"
                         Padding="0"
                         Background="Transparent"
-                        BorderThickness="0"
-                        HorizontalContentAlignment="Center"
-                        VerticalContentAlignment="Center">
-
+                        BorderThickness="0">
                     <TextBlock Text="→"
                                FontSize="17"
-                               LineHeight="18"
-                               Foreground="#454B4E"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"/>
+                               Foreground="#454B4E"/>
                 </Button>
 
-                <!-- RELOAD -->
                 <Button x:Name="ReloadButton"
                         Grid.Column="2"
                         Width="32"
                         Height="30"
                         Padding="0"
                         Background="Transparent"
-                        BorderThickness="0"
-                        HorizontalContentAlignment="Center"
-                        VerticalContentAlignment="Center">
-
+                        BorderThickness="0">
                     <TextBlock Text="↻"
                                FontSize="17"
-                               LineHeight="18"
-                               Foreground="#454B4E"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"/>
+                               Foreground="#454B4E"/>
                 </Button>
 
-                <!-- ADDRESS BAR -->
                 <Border Grid.Column="3"
                         Height="30"
                         Margin="3,0"
@@ -175,12 +143,9 @@
                              CornerRadius="7"
                              Padding="10,2"
                              VerticalContentAlignment="Center"
-                             Text=""
                              PlaceholderText="Search the web or enter an address"/>
-
                 </Border>
 
-                <!-- GO -->
                 <Button x:Name="GoButton"
                         Grid.Column="4"
                         MinWidth="48"
@@ -188,48 +153,47 @@
                         Padding="10,0"
                         Background="#E7EAEC"
                         BorderBrush="#D0D5D8"
-                        BorderThickness="1"
-                        HorizontalContentAlignment="Center"
-                        VerticalContentAlignment="Center">
-
-                    <TextBlock Text="Go"
-                               Foreground="#303638"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"/>
+                        BorderThickness="1">
+                    <TextBlock Text="Go" Foreground="#303638"/>
                 </Button>
 
+                <Button x:Name="YouTubeButton"
+                        Grid.Column="5"
+                        Width="100"
+                        Height="30"
+                        Padding="8,0"
+                        Background="#FF0000"
+                        BorderThickness="0"
+                        CornerRadius="6">
+                    <TextBlock Text="▶ YouTube"
+                               Foreground="White"
+                               FontSize="13"
+                               FontWeight="SemiBold"/>
+                </Button>
             </Grid>
         </Border>
 
-        <!-- BROWSER CONTENT AREA -->
+        <!-- BROWSER CONTENT -->
         <Grid Grid.Row="2"
               x:Name="BrowserHost"
               ClipToBounds="True">
 
-            <!-- EACH TAB'S WEBVIEW IS ADDED HERE -->
             <Grid x:Name="BrowserContent"/>
 
-            <!-- GLASSSCREEN NEW TAB PAGE -->
+            <!-- NEW TAB PAGE -->
             <Grid x:Name="NewTabPage">
-
-                <!-- DARK TEAL GRADIENT -->
                 <Border>
                     <Border.Background>
                         <LinearGradientBrush StartPoint="0%,0%"
                                              EndPoint="100%,100%">
-                            <GradientStop Color="#09242B"
-                                          Offset="0"/>
-                            <GradientStop Color="#0E3A44"
-                                          Offset="0.42"/>
-                            <GradientStop Color="#176070"
-                                          Offset="0.72"/>
-                            <GradientStop Color="#238092"
-                                          Offset="1"/>
+                            <GradientStop Color="#09242B" Offset="0"/>
+                            <GradientStop Color="#0E3A44" Offset="0.42"/>
+                            <GradientStop Color="#176070" Offset="0.72"/>
+                            <GradientStop Color="#238092" Offset="1"/>
                         </LinearGradientBrush>
                     </Border.Background>
                 </Border>
 
-                <!-- SUBTLE TOP GLOW -->
                 <Ellipse Width="900"
                          Height="500"
                          HorizontalAlignment="Center"
@@ -237,7 +201,6 @@
                          Margin="0,-280,0,0"
                          Fill="#10FFFFFF"/>
 
-                <!-- LARGE PALE SWOOP -->
                 <Ellipse Width="1800"
                          Height="760"
                          HorizontalAlignment="Center"
@@ -245,7 +208,6 @@
                          Margin="0,0,0,-570"
                          Fill="#E6EFF1"/>
 
-                <!-- TRANSLUCENT SECOND SWOOP -->
                 <Ellipse Width="1600"
                          Height="650"
                          HorizontalAlignment="Center"
@@ -253,7 +215,6 @@
                          Margin="0,0,0,-525"
                          Fill="#76FFFFFF"/>
 
-                <!-- WELCOME CARD -->
                 <Border Width="500"
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center"
@@ -286,7 +247,6 @@
                                    FontSize="14"
                                    Foreground="#657A80"/>
 
-                        <!-- FUNCTIONAL WELCOME SEARCH BAR -->
                         <Border Width="360"
                                 Height="42"
                                 Margin="0,10,0,0"
@@ -306,14 +266,41 @@
                                      VerticalContentAlignment="Center"
                                      FontSize="13"
                                      PlaceholderText="Search the web or enter an address"/>
-
                         </Border>
-
                     </StackPanel>
                 </Border>
-
             </Grid>
 
+            <!-- YOUTUBE SEARCH RESULTS -->
+            <Border x:Name="YouTubeResultsPanel"
+                    IsVisible="False"
+                    Background="White"
+                    Padding="20"
+                    ZIndex="10">
+
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Top"
+                                Orientation="Horizontal"
+                                Spacing="16"
+                                Margin="0,0,0,15">
+                        <TextBlock x:Name="YouTubeResultsTitle"
+                                   Text="YouTube Search Results"
+                                   FontSize="22"
+                                   FontWeight="SemiBold"
+                                   Foreground="#202124"
+                                   VerticalAlignment="Center"/>
+
+                        <Button x:Name="CloseYouTubeResultsButton"
+                                Content="Close Results"
+                                Padding="12,6"/>
+                    </StackPanel>
+
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel x:Name="YouTubeResultsList"
+                                    Spacing="12"/>
+                    </ScrollViewer>
+                </DockPanel>
+            </Border>
         </Grid>
 
         <!-- GLASSSCREEN CONTROLS -->
@@ -357,27 +344,31 @@
                           VerticalAlignment="Center"
                           Foreground="{StaticResource PrimaryTextBrush}"/>
 
+                <StackPanel Grid.Column="5"
+                            Orientation="Horizontal"
+                            Spacing="6"
+                            HorizontalAlignment="Right">
+                    <Button x:Name="ExpandPlayerButton"
+                            Content="Expand Player"
+                            IsEnabled="False"
+                            Padding="10,4"/>
+
+                    <Button x:Name="FillScreenButton"
+                            Content="Fill Screen"
+                            Padding="10,4"/>
+                </StackPanel>
+
                 <Button x:Name="RestoreButton"
                         Grid.Column="6"
                         Height="30"
                         Padding="12,0"
                         Background="#E1E5E7"
                         BorderBrush="#CDD2D5"
-                        BorderThickness="1"
-                        HorizontalContentAlignment="Center"
-                        VerticalContentAlignment="Center">
-
+                        BorderThickness="1">
                     <TextBlock Text="Restore"
-                               Foreground="#303638"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"/>
-
+                               Foreground="#303638"/>
                 </Button>
-
             </Grid>
-
         </Border>
-
     </Grid>
-
 </Window>
